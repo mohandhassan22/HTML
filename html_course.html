@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تعلم HTML - دورة تفاعلية</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f1a;
+    --bg2: #12152a;
+    --bg3: #1a1f3a;
+    --card: #1e2340;
+    --accent: #e85d04;
+    --accent2: #ff7b2e;
+    --blue: #3b82f6;
+    --green: #22c55e;
+    --red: #ef4444;
+    --yellow: #fbbf24;
+    --text: #e8eaf0;
+    --muted: #8892a4;
+    --border: #2a3050;
+    --code-bg: #0a0c18;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Cairo', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .sidebar {
+    position: fixed;
+    right: 0;
+    top: 0;
+    width: 280px;
+    height: 100vh;
+    background: var(--bg2);
+    border-left: 1px solid var(--border);
+    overflow-y: auto;
+    z-index: 100;
+    transition: transform 0.3s ease;
+  }
+
+  .sidebar-header {
+    padding: 24px 20px 16px;
+    background: linear-gradient(135deg, var(--accent) 0%, #b91c1c 100%);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .sidebar-header h2 { font-size: 1.1rem; font-weight: 900; color: white; }
+  .sidebar-header p { font-size: 0.75rem; color: rgba(255,255,255,0.8); margin-top: 2px; }
+
+  .progress-bar-wrap {
+    margin-top: 10px;
+    background: rgba(0,0,0,0.3);
+    border-radius: 10px;
+    height: 6px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: white;
+    border-radius: 10px;
+    transition: width 0.5s ease;
+    width: 0%;
+  }
+
+  .sidebar-lessons { padding: 12px 0; }
+
+  .lesson-btn {
+    width: 100%;
+    padding: 12px 20px;
+    background: none;
+    border: none;
+    color: var(--muted);
+    text-align: right;
+    cursor: pointer;
+    font-family: 'Cairo', sans-serif;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.2s;
+    border-right: 3px solid transparent;
+  }
+  .lesson-btn:hover { background: var(--bg3); color: var(--text); }
+  .lesson-btn.active { background: var(--bg3); color: var(--accent2); border-right-color: var(--accent); font-weight: 700; }
+  .lesson-btn.completed { color: var(--green); }
+
+  .lesson-num {
+    min-width: 24px; height: 24px; border-radius: 50%;
+    background: var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.7rem; font-weight: 700; flex-shrink: 0;
+  }
+  .lesson-btn.active .lesson-num { background: var(--accent); color: white; }
+  .lesson-btn.completed .lesson-num { background: var(--green); color: white; }
+
+  .main { margin-right: 280px; min-height: 100vh; }
+
+  .topbar {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(13,15,26,0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 32px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .topbar-title { font-size: 0.9rem; color: var(--muted); }
+  .topbar-title span { color: var(--accent2); font-weight: 700; }
+
+  .nav-btns { display: flex; gap: 8px; }
+  .nav-btn {
+    padding: 7px 16px; border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--card); color: var(--text);
+    cursor: pointer; font-family: 'Cairo', sans-serif; font-size: 0.8rem;
+    transition: all 0.2s;
+  }
+  .nav-btn:hover { border-color: var(--accent); color: var(--accent2); }
+  .nav-btn.primary { background: var(--accent); border-color: var(--accent); color: white; }
+  .nav-btn.primary:hover { background: var(--accent2); }
+
+  .content { padding: 40px 48px; max-width: 900px; }
+
+  .lesson-page { display: none; animation: fadeIn 0.4s ease; }
+  .lesson-page.active { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .lesson-header { margin-bottom: 32px; }
+
+  .lesson-tag {
+    display: inline-block; padding: 4px 12px;
+    background: rgba(232,93,4,0.15); color: var(--accent2);
+    border: 1px solid rgba(232,93,4,0.3); border-radius: 20px;
+    font-size: 0.75rem; font-weight: 700; margin-bottom: 12px; letter-spacing: 1px;
+  }
+
+  .lesson-header h1 {
+    font-size: 2rem; font-weight: 900; line-height: 1.3;
+    background: linear-gradient(135deg, #fff 0%, var(--accent2) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .lesson-header p { color: var(--muted); margin-top: 8px; font-size: 0.95rem; line-height: 1.7; }
+
+  .section-title {
+    font-size: 1.2rem; font-weight: 700; color: var(--text);
+    margin: 28px 0 14px; padding-right: 12px; border-right: 3px solid var(--accent);
+  }
+
+  .text-block { color: var(--muted); line-height: 1.9; font-size: 0.92rem; margin-bottom: 16px; }
+  .text-block strong { color: var(--text); }
+
+  .info-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 18px 20px; margin: 16px 0;
+    border-right: 3px solid var(--blue);
+  }
+  .info-card.warning { border-right-color: var(--yellow); }
+  .info-card.success { border-right-color: var(--green); }
+  .info-card.accent { border-right-color: var(--accent); }
+  .info-card p { font-size: 0.88rem; color: var(--muted); line-height: 1.8; }
+  .info-card p strong { color: var(--text); }
+
+  code { font-family: 'Fira Code', monospace; color: var(--accent2); font-size: 0.85em; }
+
+  .editor-wrap {
+    background: var(--code-bg); border: 1px solid var(--border);
+    border-radius: 14px; overflow: hidden; margin: 20px 0;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+  .editor-topbar {
+    background: var(--bg3); padding: 10px 16px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
+  .editor-dots { display: flex; gap: 6px; }
+  .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .dot-r { background: var(--red); }
+  .dot-y { background: var(--yellow); }
+  .dot-g { background: var(--green); }
+  .editor-label { font-size: 0.75rem; color: var(--muted); font-family: 'Fira Code', monospace; }
+
+  .run-btn {
+    padding: 6px 16px; background: var(--green); color: #0a0c18;
+    border: none; border-radius: 6px; cursor: pointer;
+    font-family: 'Cairo', sans-serif; font-weight: 700; font-size: 0.8rem;
+    transition: all 0.2s; display: flex; align-items: center; gap: 6px;
+  }
+  .run-btn:hover { background: #4ade80; transform: scale(1.02); }
+
+  .editor-area { display: grid; grid-template-columns: 1fr 1fr; min-height: 200px; }
+  .code-side { border-left: 1px solid var(--border); }
+
+  textarea.code-input {
+    width: 100%; height: 200px; background: var(--code-bg); color: #a8d8a8;
+    border: none; padding: 16px; font-family: 'Fira Code', monospace;
+    font-size: 0.82rem; line-height: 1.7; resize: vertical; outline: none;
+    direction: ltr; text-align: left;
+  }
+
+  .preview-label {
+    font-size: 0.7rem; color: var(--muted); padding: 6px 16px;
+    background: var(--bg3); border-bottom: 1px solid var(--border);
+    border-top: 1px solid var(--border); text-align: center;
+  }
+  iframe.preview-frame { width: 100%; height: 200px; border: none; background: white; }
+
+  .tags-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin: 16px 0; }
+  .tag-item {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 14px; transition: border-color 0.2s;
+  }
+  .tag-item:hover { border-color: var(--accent); }
+  .tag-name { font-family: 'Fira Code', monospace; color: var(--accent2); font-size: 0.85rem; direction: ltr; text-align: left; }
+  .tag-desc { font-size: 0.78rem; color: var(--muted); margin-top: 4px; }
+
+  .exercise-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 14px; overflow: hidden; margin: 20px 0;
+  }
+  .exercise-header {
+    padding: 14px 20px;
+    background: linear-gradient(135deg, rgba(59,130,246,0.15), rgba(59,130,246,0.05));
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .ex-badge { background: var(--blue); color: white; padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+  .exercise-title { font-size: 0.95rem; font-weight: 700; color: var(--text); }
+  .exercise-body { padding: 16px 20px; }
+  .exercise-desc { font-size: 0.88rem; color: var(--muted); line-height: 1.8; margin-bottom: 14px; }
+
+  .exercise-hint {
+    font-size: 0.8rem; color: var(--yellow);
+    background: rgba(251,191,36,0.08); padding: 8px 12px; border-radius: 8px;
+    margin-bottom: 14px; cursor: pointer;
+    border: 1px solid rgba(251,191,36,0.2); transition: all 0.2s;
+  }
+  .exercise-hint:hover { background: rgba(251,191,36,0.15); }
+  .hint-content { display: none; margin-top: 6px; font-size: 0.82rem; color: var(--yellow); }
+  .hint-content.show { display: block; }
+
+  .check-btn {
+    padding: 8px 20px; background: var(--blue); color: white;
+    border: none; border-radius: 8px; cursor: pointer;
+    font-family: 'Cairo', sans-serif; font-weight: 700; font-size: 0.85rem;
+    transition: all 0.2s; margin-top: 10px;
+  }
+  .check-btn:hover { background: #60a5fa; }
+
+  .result-msg {
+    margin-top: 10px; padding: 10px 14px; border-radius: 8px;
+    font-size: 0.85rem; font-weight: 600; display: none;
+  }
+  .result-msg.success { background: rgba(34,197,94,0.15); color: var(--green); border: 1px solid rgba(34,197,94,0.3); display: block; }
+  .result-msg.error { background: rgba(239,68,68,0.15); color: var(--red); border: 1px solid rgba(239,68,68,0.3); display: block; }
+
+  .mcq-options { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
+  .mcq-opt {
+    padding: 10px 16px; background: var(--bg3);
+    border: 1px solid var(--border); border-radius: 8px;
+    cursor: pointer; font-size: 0.87rem; color: var(--text);
+    transition: all 0.2s; text-align: right;
+  }
+  .mcq-opt:hover { border-color: var(--blue); color: #93c5fd; }
+  .mcq-opt.correct { background: rgba(34,197,94,0.15); border-color: var(--green); color: var(--green); }
+  .mcq-opt.wrong { background: rgba(239,68,68,0.12); border-color: var(--red); color: var(--red); }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+  .menu-toggle {
+    display: none; position: fixed; bottom: 20px; left: 20px; z-index: 200;
+    width: 48px; height: 48px; border-radius: 50%; background: var(--accent);
+    border: none; color: white; font-size: 1.3rem; cursor: pointer;
+    box-shadow: 0 4px 16px rgba(232,93,4,0.4);
+  }
+
+  @media (max-width: 768px) {
+    .sidebar { transform: translateX(100%); }
+    .sidebar.open { transform: translateX(0); }
+    .main { margin-right: 0; }
+    .content { padding: 24px 20px; }
+    .editor-area { grid-template-columns: 1fr; }
+    .code-side { border-left: none; border-top: 1px solid var(--border); }
+    .lesson-header h1 { font-size: 1.5rem; }
+    .menu-toggle { display: flex; align-items: center; justify-content: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <h2>🎓 دورة HTML التفاعلية</h2>
+    <p>تعلم من الصفر حتى الاحتراف</p>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="progressFill"></div>
+    </div>
+    <p style="font-size:0.7rem;color:rgba(255,255,255,0.7);margin-top:4px" id="progressText">0 من 10 دروس مكتملة</p>
+  </div>
+  <div class="sidebar-lessons">
+    <button class="lesson-btn active" onclick="showLesson(0)" id="btn-0"><span class="lesson-num">1</span> ما هي HTML؟</button>
+    <button class="lesson-btn" onclick="showLesson(1)" id="btn-1"><span class="lesson-num">2</span> أساسيات اللغة</button>
+    <button class="lesson-btn" onclick="showLesson(2)" id="btn-2"><span class="lesson-num">3</span> الفقرات</button>
+    <button class="lesson-btn" onclick="showLesson(3)" id="btn-3"><span class="lesson-num">4</span> العناوين</button>
+    <button class="lesson-btn" onclick="showLesson(4)" id="btn-4"><span class="lesson-num">5</span> تنسيق النصوص</button>
+    <button class="lesson-btn" onclick="showLesson(5)" id="btn-5"><span class="lesson-num">6</span> الاقتباسات</button>
+    <button class="lesson-btn" onclick="showLesson(6)" id="btn-6"><span class="lesson-num">7</span> تنسيق الكود</button>
+    <button class="lesson-btn" onclick="showLesson(7)" id="btn-7"><span class="lesson-num">8</span> الروابط</button>
+    <button class="lesson-btn" onclick="showLesson(8)" id="btn-8"><span class="lesson-num">9</span> الجداول</button>
+    <button class="lesson-btn" onclick="showLesson(9)" id="btn-9"><span class="lesson-num">10</span> مراجعة شاملة</button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-title">دورة HTML / <span id="currentLessonTitle">ما هي HTML؟</span></div>
+    <div class="nav-btns">
+      <button class="nav-btn" onclick="prevLesson()">❯ السابق</button>
+      <button class="nav-btn primary" onclick="nextLesson()">التالي ❮</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ====== LESSON 0 ====== -->
+    <div class="lesson-page active" id="lesson-0">
+      <div class="lesson-header">
+        <div class="lesson-tag">الدرس الأول</div>
+        <h1>ما هي لغة HTML؟</h1>
+        <p>مقدمة شاملة للغة HTML ومكانتها في بناء صفحات الويب</p>
+      </div>
+
+      <h3 class="section-title">تعريف HTML</h3>
+      <p class="text-block">HTML هي لغة بسيطة جداً تستخدم لوصف ما تحتويه صفحات الويب. نستخدمها لتحديد العناصر الموجودة في الصفحة مثل العناوين، الفقرات، الأزرار، الصور، القوائم، الجداول وغيرها.</p>
+      <p class="text-block">كلمة <strong>HTML</strong> هي اختصار لـ <strong>HyperText Markup Language</strong> — وهي ليست لغة برمجة بل <strong>لغة توصيف (Markup Language)</strong>.</p>
+
+      <div class="info-card accent">
+        <p>🎯 <strong>هدفها الوحيد:</strong> تحديد بنية صفحات الويب (Pages Structure) — أي ما يوجد في الصفحة وترتيبه.</p>
+      </div>
+
+      <h3 class="section-title">مكونات صفحة الويب</h3>
+      <div class="tags-grid">
+        <div class="tag-item"><div class="tag-name">HTML</div><div class="tag-desc">تحديد عناصر الصفحة وبنيتها</div></div>
+        <div class="tag-item"><div class="tag-name">CSS</div><div class="tag-desc">تحسين تصميم وشكل العناصر</div></div>
+        <div class="tag-item"><div class="tag-name">JavaScript</div><div class="tag-desc">إضافة تفاعل ومعالجة البيانات</div></div>
+      </div>
+
+      <h3 class="section-title">تاريخ HTML</h3>
+      <div class="tags-grid">
+        <div class="tag-item"><div class="tag-name">1989</div><div class="tag-desc">Tim Berners-Lee يبتكر مشروع WWW</div></div>
+        <div class="tag-item"><div class="tag-name">1991</div><div class="tag-desc">ابتكار لغة HTML</div></div>
+        <div class="tag-item"><div class="tag-name">1994</div><div class="tag-desc">تأسيس شركة W3C</div></div>
+        <div class="tag-item"><div class="tag-name">1999</div><div class="tag-desc">إصدار HTML 4.01</div></div>
+        <div class="tag-item"><div class="tag-name">2014</div><div class="tag-desc">إصدار HTML5 ⭐</div></div>
+        <div class="tag-item"><div class="tag-name">2017</div><div class="tag-desc">آخر تحديث HTML 5.2</div></div>
+      </div>
+
+      <h3 class="section-title">جرب بنفسك</h3>
+      <div class="editor-wrap">
+        <div class="editor-topbar">
+          <div class="editor-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+          <div class="editor-label">index.html</div>
+          <button class="run-btn" onclick="runCode('ex0')">▶ تشغيل</button>
+        </div>
+        <div class="editor-area">
+          <div><textarea class="code-input" id="ex0-code" spellcheck="false"><!DOCTYPE html>
+<html>
+  <head>
+    <title>صفحتي الأولى</title>
+  </head>
+  <body>
+    <h1>مرحباً بالعالم!</h1>
+    <p>هذه أولى تجاربي مع HTML</p>
+  </body>
+</html></textarea></div>
+          <div class="code-side">
+            <div class="preview-label">النتيجة</div>
+            <iframe class="preview-frame" id="ex0-preview"></iframe>
+          </div>
+        </div>
+      </div>
+
+      <div class="exercise-card">
+        <div class="exercise-header"><span class="ex-badge">تمرين</span><span class="exercise-title">سؤال اختياري</span></div>
+        <div class="exercise-body">
+          <p class="exercise-desc">ماذا تعني اختصار HTML؟</p>
+          <div class="mcq-options" id="mcq0">
+            <div class="mcq-opt" onclick="checkMCQ(this, 'mcq0', false)">HyperText Making Language</div>
+            <div class="mcq-opt" onclick="checkMCQ(this, 'mcq0', true)">HyperText Markup Language</div>
+            <div class="mcq-opt" onclick="checkMCQ(this, 'mcq0', false)">High Text Markup Language</div>
+            <div class="mcq-opt" onclick="checkMCQ(this, 'mcq0', false)">HyperTransfer Markup Language</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align:center;margin-top:24px">
+        <button class="nav-btn primary" onclick="completeAndNext(0)">إكمال الدرس والمتابعة ❮</button>
+      </div>
+    </div>
+
+    <!-- ====== LESSON 1: أساسيات ====== -->
+    <div class="lesson-page" id="lesson-1">
+      <div class="lesson-header">
+        <div class="lesson-tag">الدرس الثاني</div>
+        <h1>أساسيات لغة HTML</h1>
+        <p>تعلم أنواع الوسوم وبنية الصفحة الأساسية</p>
+      </div>
+
+      <h3 class="section-title">أنواع الوسوم</h3>
+      <p class="text-block">أي شيء يتم إضافته في الصفحة يقال له <strong>وسم (Tag)</strong> ويوجد نوعان:</p>
+      <div class="info-card">
+        <p>🔹 <strong>وسوم فردية (Single Tags):</strong> لا يمكن وضع وسم آخر فيها، مثل: <code>&lt;br/&gt;</code> و <code>&lt;hr/&gt;</code></p>
+      </div>
+      <div class="info-card warning">
+        <p>🔸 <strong>وسوم زوجية (Paired Tags):</strong> لها بداية ونهاية، مثل: <code>&lt;p&gt; &lt;/p&gt;</code> و <code>&lt;h1&gt; &lt;/h1&gt;</code></p>
+      </div>
+
+      <h3 class="section-title">بنية الصفحة الأساسية</h3>
+      <div class="tags-grid">
+        <div class="tag-item"><div class="tag-name">&lt;!DOCTYPE html&gt;</div><div class="tag-desc">يخبر المتصفح أننا نستخدم HTML5</div></div>
+        <div class="tag-item"><div class="tag-name">&lt;html&gt;</div><div class="tag-desc">يحتوي على كل محتوى الصفحة</div></div>
+        <div class="tag-item"><div class="tag-name">&lt;head&gt;</div><div class="tag-desc">معلومات الصفحة (غير مرئية)</div></div>
+        <div class="tag-item"><div class="tag-name">&lt;title&gt;</div><div class="tag-desc">عنوان الصفحة في شريط المتصفح</div></div>
+        <div class="tag-item"><div class="tag-name">&lt;body&gt;</div><div class="tag-desc">محتوى الصفحة المرئي</div></div>
+      </div>
+
+      <h3 class="section-title">جرب بنفسك</h3>
+      <div class="editor-wrap">
+        <div class="editor-topbar">
+          <div class="editor-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+          <div class="editor-label">index.html</div>
+          <button class="run-btn" onclick="runCode('ex1')">▶ تشغيل</button>
+        </div>
+        <div class="editor-area">
+          <div><textarea class="code-input" id="ex1-code" spellcheck="false"><!DOCTYPE html>
+<html>
+  <head>
+    <title>عنوان الصفحة</title>
+  </head>
+  <body>
+    <h2>مرحبا!</h2>
+    <p>هذا نص في الصفحة</p>
+    <hr/>
+    <p>فقرة ثانية بعد خط</p>
+  </body>
+</html></textarea></div>
+          <div class="code-side">
+            <div class="preview-label">النتيجة</div>
+            <iframe class="preview-frame" id="ex1-preview"></iframe>
+          </div>
+        </div>
+      </div>
+
+      <div class="exercise-card">
+        <div class="exercise-header"><span class="ex-badge">تمرين</span><span class="exercise-title">سؤال اختياري</span></div>
+        <div class="exercise-body">
+          <p class="exercise-desc">ما الوسم الذي يحتوي على المحتوى المرئي للصفحة؟</p>
+          <div class="mcq-options" id="mcq1">
+            <div class="mcq-opt" onclick="checkMCQ(this,'mcq1',false)">&lt;head&gt;</div>
+            <div class="mcq-opt" onclick="checkMCQ(this,'mcq1',false)">&lt;html&gt;</div>
+            <div class="mcq-opt" onclick="checkMCQ(this,'mcq1',true)">&lt;body&gt;</div>
+            <div class="mcq-opt" onclick="checkMCQ(this,'mcq1',false)">&lt;title&gt;</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align:center;margin-top:24px">
+        <button class="nav-btn primary" onclick="completeAndNext(1)">إكمال الدرس والمتابعة ❮</button>
+      </div>
+    </div>
+
+    <!-- ====== LESSON 2: الفقرات ====== -->
+    <div class="lesson-page" id="lesson-2">
+      <div class="lesson-header">
+        <div class="lesson-tag">الدرس الثالث</div>
+        <h1>الفقرات في HTML</h1>
+        <p>تعلم كيفية إضافة فقرات ونصوص في صفحات الويب</p>
+      </div>
+
+      <h3 class="section-title">وسم الفقرة</h3>
+      <p class="text-block">لإضافة فقرة نصية في الصفحة نستخدم الوسم <code>&lt;p&gt;&lt;/p&gt;</code>. كل فقرة تظهر على سطر منفصل مع مسافة فوقها وتحتها تلقائياً.</p>
+
+      <div class="info-card">
+        <p>📝 <strong>ملاحظة:</strong> المتصفح يتجاهل المسافات والأسطر الزائدة في الكود. إذا أردت سطراً جديداً داخل الفقرة استخدم <code>&lt;br/&gt;</code></p>
+      </div>
+
+      <h3 class="section-title">وسوم مهمة للنص</h3>
+      <div class="tags-grid">
+        <div class="tag-item"><div class="tag-name">&lt;p&gt;</div><div class="tag-desc">فقرة نصية كاملة</div></div>
+        <div class="tag-item"><div class="tag-name">&lt;br/&gt;</div><div class="tag-desc">سطر جديد داخل الفقرة</div></div>
+        <div class="tag-item"><div class="tag-name">&lt;hr/&gt;</div><div class="tag-desc">خط أفقي فاصل</div></div>
+        <div class="tag-item"><div class="tag-name">&lt;pre&gt;</div><div class="tag-desc">يحافظ على التنسيق والمسافات</div></div>
+      </div>
+
+      <h3 class="section-title">جرب بنفسك</h3>
+      <div class="editor-wrap">
+        <div class="editor-topbar">
+          <div class="editor-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+          <div class="editor-label">index.html</div>
+          <button class="run-btn" onclick="runCode('ex2')">▶ تشغيل</button>
+        </div>
+        <div class="editor-area">
+          <div><textarea class="code-input" id="ex2-code" spellcheck="false"><p>هذه الفقرة الأولى في صفحتي.</p>
+<p>وهذه الفقرة الثانية.<br/>
+هذا السطر داخل نفس الفقرة.</p>
+<hr/>
+<pre>
+  هذا النص
+  يحافظ على
+  التنسيق الأصلي
+</pre></textarea></div>
+          <div class="code-side">
+            <div class="preview-label">النتيجة</div>
+            <iframe class="preview-frame" id="ex2-preview"></iframe>
+          </div>
+        </div>
+      </div>
+
+      <div class="exercise-card">
+        <div class="exercise-header"><span class="ex-badge">تمرين كتابي</span><span class="exercise-title">أكتب كودك</span></div>
+        <div class="exercise-body">
+          <p class="exercise-desc">اكتب كوداً يعرض فقرتين: الأولى تقول "أنا أتعلم HTML" والثانية تقول "البرمجة ممتعة!" مع فاصل بينهما.</p>
+          <div class="exercise-hint" onclick="toggleHint('hint2')">💡 اضغط لرؤية التلميح
+            <div class="hint-content" id="hint2">استخدم &lt;p&gt; لكل فقرة و &lt;hr/&gt; للفاصل بينهما</div>
+          </div>
+          <div class="editor-wrap" style="margin:0">
+            <div class="editor-topbar">
+              <div class="editor-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+              <div class="editor-label">تمرينك</div>
+              <button class="run-btn" onclick="runCode('ex2b')">▶ تشغيل</button>
+            </div>
+            <div class="editor-area">
+              <div><textarea class="code-input" id="ex2b-code" spellcheck="false"><!-- اكتب كودك هنا --></textarea></div>
+              <div class="code-side">
+                <div class="preview-label">النتيجة</div>
+                <iframe class="preview-frame" id="ex2b-preview"></iframe>
+              </div>
+            </div>
+          </div>
+          <button class="check-btn" onclick="checkExercise('ex2b', ['<p>', '<hr'])">✔ تحقق من الإجابة</button>
+          <div class="result-msg" id="ex2b-result"></div>
+        </div>
+      </div>
+
+      <div style="text-align:center;margin-top:24px">
+        <button class="nav-btn primary" onclick="completeAndNext(2)">إكمال الدرس والمتابعة ❮</button>
+      </div>
+    </div>
+
+    <!-- ====== LESSON 3: العناوين ====== -->
+    <div class="lesson-page" id="lesson-3">
+      <div class="lesson-header">
+        <div class="lesson-tag">الدرس الرابع</div>
+        <h1>العناوين في HTML</h1>
+        <p>تعلم كيفية استخدام عناوين الصفحة من h1 إلى h6</p>
+      </div>
+
+      <h3 class="section-title">وسوم العناوين</h3>
+      <p class="text-block">HTML توفر 6 مستويات من العناوين. <code>&lt;h1&gt;</code> هو الأكبر والأهم و <code>&lt;h6&gt;</code> هو الأصغر.</p>
+
+      <div class="info-card warning">
+        <p>⚠️ <strong>SEO مهم:</strong> استخدم <code>&lt;h1&gt;</code> مرة واحدة فقط في الصفحة لأنه العنوان الرئيسي الذي تعتمد عليه محركات البحث.</p>
+      </div>
+
+      <div class="tags-grid">
+        <div class="tag-item"><div class="tag-name">&lt;h1&gt;</div><div class="tag-desc">العنوان الرئيسي - الأكبر</div></div>
+        <div class="tag-item"><div class="tag-name">&lt;h2&gt;</div><div class="tag-desc">عنوان رئيسي ثانوي</div></div>
+        <div class="tag-item"><div class="tag-name">&lt;h3&gt;</div><div class="tag-desc">عنوان فرعي</div></div>
+        <div class="tag-item"><div class="tag-name">&lt;h4&gt;</div><div class="tag-desc">عنوان تفصيلي</div></div>
+        <div class="tag-item"><div class="tag-name">&lt;h5&gt;</div><div class="tag-desc">عنوان صغير</div></div>
+        <div class="tag-item"><div class="tag-name">&lt;h6&gt;</div><div class="tag-desc">العنوان الأصغر</div></div>
+      </div>
+
+      <h3 class="section-title">جرب بنفسك</h3>
+      <div class="editor-wrap">
+        <div class="editor-topbar">
+          <div class="editor-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+          <div class="editor-label">index.html</div>
+          <button class="run-btn" onclick="runCode('ex3')">▶ تشغيل</button>
+        </div>
+        <div class="editor-area">
+          <div><textarea class="code-input" id="ex3-code" spellcheck="false"><h1>العنوان الرئيسي</h1>
+<h2>عنوان ثانوي</h2>
+<h3>عنوان فرعي</h3>
+<h4>عنوان تفصيلي</h4>
+<h5>عنوان صغير</h5>
+<h6>العنوان الأصغر</h6></textarea></div>
+          <div class="code-side">
+            <div class="preview-label">النتيجة</div>
+            <iframe class="preview-frame" id="ex3-preview"></iframe>
+          </div>
+        </div>
+      </div>
+
+      <div class="exercise-card">
+        <div class="exercise-header"><span class="ex-badge">تمرين</span><span class="exercise-title">سؤال اختياري</span></div>
+        <div class="exercise-body">
+          <p class="exercise-desc">كم مرة يجب استخدام وسم &lt;h1&gt; في الصفحة الواحدة؟</p>
+          <div class="mcq-options" id="mcq3">
+            <div class="mcq-opt" onclick="checkMCQ(this,'mcq3',false)">بدون حد - يمكن استخدامه كثيراً</div>
+            <div class="mcq-opt" onclick="checkMCQ(this,'mcq3',true)">مرة واحدة فقط</div>
+            <div class="mcq-opt" onclick="checkMCQ(this,'mcq3',false)">مرتين على الأكثر</div>
+            <div class="mcq-opt" onclick="checkMCQ(this,'mcq3',false)">لا يُستخدم أبداً</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align:center;margin-top:24px">
+        <button class="nav-btn primary" onclick="completeAndNext(3)">إكمال الدرس والمتابعة ❮</button>
+      </div>
+    </div>
+
+    <!-- ====== LESSON 4: تنسيق النصوص ====== -->
+    <div class="lesson-page" id="lesson-4">
+      <div class="lesson-header">
+        <div class="lesson-tag">الدرس الخامس</div>
+        <h1>تنسيق النصوص</h1>
+        <p>تعلم كيفية تنسيق النصوص وإبرازها بأشكال مختلفة</p>
+      </div>
+
+      <h3 class="section-title">وسوم التنسيق الأساسية</h3>
+      <div class="tags-grid">
+        <div class="tag-item"><div class="tag-name">&lt;b&gt; / &lt;strong&gt;</div><div class="tag-desc">نص عريض (Bold)</div></div>
+        <div class="tag-item"><div class="tag-name">&lt;i&gt; / &lt;em&gt;</div><div class="tag-desc">نص مائل (Italic)</div></div>
+        <div class="tag-item"><div class="tag-name">&lt;u&gt;</div><div class="tag-desc">نص تحته خط</div></div>
+        <div class="tag-item"><div class="tag-name">&lt;s&gt;</div><div class="tag-desc">نص محذوف (خط في المنتصف)</div></div>
+        <div class="tag-item"><div class="tag-name">&lt;mark&gt;</div><div class="tag-desc">تمييز النص بلون أصفر</div></div>
+        <div class="tag-item"><div class="tag-name">&lt;sup&gt;</div><div class="tag-desc">نص مرتفع (أس في الرياضيات)</div></div>
+        <div class="tag-item"><div class="tag-name">&lt;sub&gt;</div><div class="tag-desc">نص منخفض (مثل H₂O)</div></div>
+        <div class="tag-item"><div class="tag-name">&lt;small&gt;</div><div class="tag-desc">نص صغير الحجم</div></div>
+      </div>
+
+      <div class="info-card">
+        <p>💡 <strong>الفرق بين b و strong:</strong> كلاهما يجعل النص عريضاً، لكن <code>&lt;strong&gt;</code> يدل على أهمية النص دلالياً وهو أفضل لـ SEO.</p>
+      </div>
+
+      <h3 class="section-title">جرب بنفسك</h3>
+      <div class="editor-wrap">
+        <div class="editor-topbar">
+          <div class="editor-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+          <div class="editor-label">index.html</div>
+          <button class="run-btn" onclick="runCode('ex4')">▶ تشغيل</button>
+        </div>
+        <div class="editor-area">
+          <div><textarea class="code-input" id="ex4-code" spellcheck="false"><p><b>نص عريض</b> و <i>نص مائل</i></p>
+<p><u>نص تحته خط</u> و <s>نص محذوف</s></p>
+<p><mark>نص مميز</mark> و <small>نص صغير</small></p>
+<p>H<sub>2</sub>O و x<sup>2</sup> + y<sup>2</sup></p>
+<p><strong>هذا مهم جداً!</strong></p></textarea></div>
+          <div class="code-side">
+            <div class="preview-label">النتيجة</div>
+            <iframe class="preview-frame" id="ex4-preview"></iframe>
+          </div>
+        </div>
+      </div>
+
+      <div class="exercise-card">
+        <div class="exercise-header"><span class="ex-badge">تمرين</span><span class="exercise-title">سؤال اختياري</span></div>
+        <div class="exercise-body">
+          <p class="exercise-desc">ما الوسم المستخدم لعرض رمز الأس (مثل x²) في HTML؟</p>
+          <div class="mcq-options" id="mcq4">
+            <div class="mcq-opt" onclick="checkMCQ(this,'mcq4',false)">&lt;b&gt;</div>
+            <div class="mcq-opt" onclick="checkMCQ(this,'mcq4',false)">&lt;small&gt;</div>
+            <div class="mcq-opt" onclick="checkMCQ(this,'mcq4',true)">&lt;sup&gt;</div>
+            <div class="mcq-opt" onclick="checkMCQ(this,'mcq4',false)">&lt;mark&gt;</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align:center;margin-top:24px">
+        <button class="nav-btn primary" onclick="completeAndNext(4)">إكمال الدرس والمتابعة ❮</button>
+      </div>
+    </div>
+
+    <!-- ====== LESSON 5: الاقتباسات ====== -->
+    <div class="lesson-page" id="lesson-5">
+      <div class="lesson-header">
+        <div class="lesson-tag">الدرس السادس</div>
+        <h1>الاقتباسات في HTML</h1>
+        <p>تعلم وسوم عرض النصوص المقتبسة والمعلومات الخاصة</p>
+      </div>
+
+      <h3 class="section-title">مفهوم الاقتباس</h3>
+      <p class="text-block">النص المقتبس (Quoted text) هو نص منقول من مصدر آخر. HTML توفر وسوماً خاصة لعرضه بشكل مميز يُعلم القارئ بأنه منقول ويحفظ حقوق المصدر.</p>
+
+      <h3 class="section-title">وسم blockquote — اقتباس في بلوك منفصل</h3>
+      <p class="text-block">إذا أردت عرض نص مقتبس على سطر منفرد مع هامش حوله، استخدم <code>&lt;blockquote&gt;</code>. يمكنك إضافة خاصية <code>cite</code> لتحديد المصدر.</p>
+
+      <div class="editor-wrap">
+        <div class="editor-topbar">
+          <div class="editor-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+          <div class="editor-label">blockquote مثال</div>
+          <button class="run-btn" onclick="runCode('ex5a')">▶ تشغيل</button>
+        </div>
+        <div class="editor-area">
+          <div><textarea class="code-input" id="ex5a-code" spellcheck="false"><p>يقول تيم بيرنرز-لي:</p>
+<blockquote cite="https://en.wikipedia.org/wiki/HTML">
+  In 1989, Berners-Lee wrote a memo proposing 
+  an Internet-based hypertext system.
+</blockquote></textarea></div>
+          <div class="code-side">
+            <div class="preview-label">النتيجة</div>
+            <iframe class="preview-frame" id="ex5a-preview"></iframe>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="section-title">وسم q — اقتباس داخل الجملة</h3>
+      <p class="text-block">إذا أردت عرض اقتباس قصير داخل الجملة بين علامتي تنصيص، استخدم <code>&lt;q&gt;</code>. ميزته أنه يمكن تخصيصه بـ CSS لاحقاً.</p>
+
+      <div class="editor-wrap">
+        <div class="editor-topbar">
+          <div class="editor-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+          <div class="editor-label">q مثال</div>
+          <button class="run-btn" onclick="runCode('ex5b')">▶ تشغيل</button>
+        </div>
+        <div class="editor-area">
+          <div><textarea class="code-input" id="ex5b-code" spellcheck="false"><p>قال المعلم: <q>HTML is not a programming language</q> وأضاف أنها <q>It's very easy to learn</q></p></textarea></div>
+          <div class="code-side">
+            <div class="preview-label">النتيجة</div>
+            <iframe class="preview-frame" id="ex5b-preview"></iframe>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="section-title">وسوم أخرى مهمة</h3>
+      <div class="tags-grid">
+        <div class="tag-item"><div class="tag-name">&lt;abbr&gt;</div><div class="tag-desc">اسم مختصر — يظهر الاسم الكامل عند تمرير الفأرة</div></div>
+        <div class="tag-item"><div class="tag-name">&lt;address&gt;</div><div class="tag-desc">معلومات التواصل والوصول — يظهر بخط مائل</div></div>
+        <div class="tag-item"><div class="tag-name">&lt;cite&gt;</div><div class="tag-desc">إبراز عنوان عمل أو كتاب — يظهر بخط مائل</div></div>
+      </div>
+
+      <div class="editor-wrap">
+        <div class="editor-topbar">
+          <div class="editor-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+          <div class="editor-label">وسوم إضافية</div>
+          <button class="run-btn" onclick="runCode('ex5c')">▶ تشغيل</button>
+        </div>
+        <div class="editor-area">
+          <div><textarea class="code-input" id="ex5c-code" spellcheck="false"><!-- abbr: اختصار مع شرح عند التمرير -->
+<p><abbr title="Hyper Text Markup Language">HTML</abbr> is used to create web pages.</p>
+
+<!-- address: معلومات التواصل -->
+<address>info@example.com | Tripoli, Lebanon</address>
+
+<!-- cite: عنوان عمل -->
+<p>قرأت في كتاب <cite>البرمجة للمبتدئين</cite> أن HTML سهلة.</p></textarea></div>
+          <div class="code-side">
+            <div class="preview-label">النتيجة</div>
+            <iframe class="preview-frame" id="ex5c-preview"></iframe>
+          </div>
+        </div>
+      </div>
+
+      <div class="exercise-card">
+        <div class="exercise-header"><span class="ex-badge">تمرين</span><span class="exercise-title">سؤال اختياري</span></div>
+        <div class="exercise-body">
+          <p class="exercise-desc">ما الوسم المناسب لعرض اقتباس طويل على سطر منفرد مع هامش؟</p>
+          <div class="mcq-options" id="mcq5">
+            <div class="mcq-opt" onclick="checkMCQ(this,'mcq5',false)">&lt;q&gt;</div>
+            <div class="mcq-opt" onclick="checkMCQ(this,'mcq5',true)">&lt;blockquote&gt;</div>
+            <div class="mcq-opt" onclick="checkMCQ(this,'mcq5',false)">&lt;cite&gt;</div>
+            <div class="mcq-opt" onclick="checkMCQ(this,'mcq5',false)">&lt;abbr&gt;</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="exercise-card">
+        <div class="exercise-header"><span class="ex-badge">تمرين كتابي</span><span class="exercise-title">طبّق ما تعلمته</span></div>
+        <div class="exercise-body">
+          <p class="exercise-desc">اكتب فقرة تحتوي على اقتباس داخلي باستخدام &lt;q&gt;، واستخدم &lt;abbr&gt; لاختصار CSS مع شرح كامل اسمه.</p>
+          <div class="exercise-hint" onclick="toggleHint('hint5')">💡 اضغط للتلميح
+            <div class="hint-content" id="hint5">CSS تعني Cascading Style Sheets</div>
+          </div>
+          <div class="editor-wrap" style="margin:0">
+            <div class="editor-topbar">
+              <div class="editor-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+              <div class="editor-label">تمرينك</div>
+              <button class="run-btn" onclick="runCode('ex5d')">▶ تشغيل</button>
+            </div>
+            <div class="editor-area">
+              <div><textarea class="code-input" id="ex5d-code" spellcheck="false"><!-- اكتب كودك هنا --></textarea></div>
+              <div class="code-side">
+                <div class="preview-label">النتيجة</div>
+                <iframe class="preview-frame" id="ex5d-preview"></iframe>
+              </div>
+            </div>
+          </div>
+          <button class="check-btn" onclick="checkExercise('ex5d', ['<q>', '<abbr'])">✔ تحقق من الإجابة</button>
+          <div class="result-msg" id="ex5d-result"></div>
+        </div>
+      </div>
+
+      <div style="text-align:center;margin-top:24px">
+        <button class="nav-btn primary" onclick="completeAndNext(5)">إكمال الدرس والمتابعة ❮</button>
+      </div>
+    </div>
+
+    <!-- ====== LESSON 6: تنسيق الكود ====== -->
+    <div class="lesson-page" id="lesson-6">
+      <div class="lesson-header">
+        <div class="lesson-tag">الدرس السابع</div>
+        <h1>تنسيق الكود البرمجي</h1>
+        <p>تعلم وسوم عرض الكود والمعادلات والمدخلات بشكل مميز</p>
+      </div>
+
+      <h3 class="section-title">مفهوم تنسيق الكود</h3>
+      <p class="text-block">تنسيق الكود يعني عرض النص الذي يمثل كوداً برمجياً أو مخرجات حاسوب بخط مختلف عن النص العادي. الخط المستخدم يسمى <strong>monospace</strong> وهو يجعل قراءة الكود سهلة.</p>
+
+      <h3 class="section-title">وسوم تنسيق الكود</h3>
+      <div class="tags-grid">
+        <div class="tag-item"><div class="tag-name">&lt;kbd&gt;</div><div class="tag-desc">أزرار لوحة المفاتيح (Keyboard)</div></div>
+        <div class="tag-item"><div class="tag-name">&lt;samp&gt;</div><div class="tag-desc">مخرجات البرامج (Sample Output)</div></div>
+        <div class="tag-item"><div class="tag-name">&lt;code&gt;</div><div class="tag-desc">كود برمجي داخل النص</div></div>
+        <div class="tag-item"><div class="tag-name">&lt;var&gt;</div><div class="tag-desc">أسماء المتغيرات في المعادلات</div></div>
+      </div>
+
+      <div class="info-card">
+        <p>📌 <strong>جميع هذه الوسوم</strong> تغير نوع الخط إلى monospace فقط، ولكن كل وسم يحمل معنىً دلالياً مختلفاً يساعد المتصفحات وقارئات الشاشة.</p>
+      </div>
+
+      <h3 class="section-title">جرب بنفسك</h3>
+      <div class="editor-wrap">
+        <div class="editor-topbar">
+          <div class="editor-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+          <div class="editor-label">مثال شامل</div>
+          <button class="run-btn" onclick="runCode('ex6')">▶ تشغيل</button>
+        </div>
+        <div class="editor-area">
+          <div><textarea class="code-input" id="ex6-code" spellcheck="false"><!-- لوحة المفاتيح -->
+<p>Press <kbd>Ctrl + S</kbd> to save the file.</p>
+
+<!-- مخرجات البرامج -->
+<p>My computer showed:</p>
+<p><samp>Error code: 0x80070043</samp></p>
+
+<!-- كود برمجي -->
+<p>In Java the <code>main()</code> is the starting point.</p>
+
+<!-- معادلة رياضية -->
+<p>Pythagorean: <code>a<sup>2</sup> + b<sup>2</sup> = c<sup>2</sup></code></p>
+
+<!-- أسماء متغيرات -->
+<p>Calculate <var>x</var> where <code><var>x</var> + 5 = 13</code></p></textarea></div>
+          <div class="code-side">
+            <div class="preview-label">النتيجة</div>
+            <iframe class="preview-frame" id="ex6-preview"></iframe>
+          </div>
+        </div>
+      </div>
+
+      <div class="exercise-card">
+        <div class="exercise-header"><span class="ex-badge">تمرين</span><span class="exercise-title">سؤال اختياري</span></div>
+        <div class="exercise-body">
+          <p class="exercise-desc">ما الوسم المناسب لعرض مخرجات البرنامج (رسائل الخطأ مثلاً)؟</p>
+          <div class="mcq-options" id="mcq6">
+            <div class="mcq-opt" onclick="checkMCQ(this,'mcq6',false)">&lt;kbd&gt;</div>
+            <div class="mcq-opt" onclick="checkMCQ(this,'mcq6',false)">&lt;code&gt;</div>
+            <div class="mcq-opt" onclick="checkMCQ(this,'mcq6',true)">&lt;samp&gt;</div>
+            <div class="mcq-opt" onclick="checkMCQ(this,'mcq6',false)">&lt;var&gt;</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="exercise-card">
+        <div class="exercise-header"><span class="ex-badge">تمرين كتابي</span><span class="exercise-title">طبّق ما تعلمته</span></div>
+        <div class="exercise-body">
+          <p class="exercise-desc">اكتب فقرة تشرح أن المستخدم يضغط <kbd>Ctrl+C</kbd> لنسخ الكود، ثم اعرض مثالاً على دالة <code>print()</code> في Python.</p>
+          <div class="exercise-hint" onclick="toggleHint('hint6')">💡 اضغط للتلميح
+            <div class="hint-content" id="hint6">استخدم &lt;kbd&gt; للمفاتيح و &lt;code&gt; للكود البرمجي</div>
+          </div>
+          <div class="editor-wrap" style="margin:0">
+            <div class="editor-topbar">
+              <div class="editor-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+              <div class="editor-label">تمرينك</div>
+              <button class="run-btn" onclick="runCode('ex6b')">▶ تشغيل</button>
+            </div>
+            <div class="editor-area">
+              <div><textarea class="code-input" id="ex6b-code" spellcheck="false"><!-- اكتب كودك هنا --></textarea></div>
+              <div class="code-side">
+                <div class="preview-label">النتيجة</div>
+                <iframe class="preview-frame" id="ex6b-preview"></iframe>
+              </div>
+            </div>
+          </div>
+          <button class="check-btn" onclick="checkExercise('ex6b', ['<kbd', '<code'])">✔ تحقق من الإجابة</button>
+          <div class="result-msg" id="ex6b-result"></div>
+        </div>
+      </div>
+
+      <div style="text-align:center;margin-top:24px">
+        <button class="nav-btn primary" onclick="completeAndNext(6)">إكمال الدرس والمتابعة ❮</button>
+      </div>
+    </div>
+
+    <!-- ====== LESSON 7: الروابط ====== -->
+    <div class="lesson-page" id="lesson-7">
+      <div class="lesson-header">
+        <div class="lesson-tag">الدرس الثامن</div>
+        <h1>الروابط في HTML</h1>
+        <p>تعلم كيفية إضافة روابط بأشكال مختلفة في صفحاتك</p>
+      </div>
+
+      <h3 class="section-title">وسم الرابط الأساسي</h3>
+      <p class="text-block">نستخدم <code>&lt;a href="url"&gt;النص&lt;/a&gt;</code> لإنشاء رابط. مكان <strong>url</strong> نضع عنوان الصفحة المراد الانتقال إليها.</p>
+
+      <div class="editor-wrap">
+        <div class="editor-topbar">
+          <div class="editor-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+          <div class="editor-label">أنواع الروابط</div>
+          <button class="run-btn" onclick="runCode('ex7a')">▶ تشغيل</button>
+        </div>
+        <div class="editor-area">
+          <div><textarea class="code-input" id="ex7a-code" spellcheck="false"><!-- رابط عادي -->
+<p><a href="https://google.com">اذهب إلى Google</a></p>
+
+<!-- رابط مع تلميح -->
+<p><a href="https://google.com" title="محرك البحث الأشهر">Google</a></p>
+
+<!-- رابط بريد إلكتروني -->
+<p><a href="mailto:info@example.com">أرسل إيميل</a></p>
+
+<!-- رابط وهمي -->
+<p><a href="#">رابط بدون وجهة</a></p>
+
+<!-- رابط كزر -->
+<button onclick="alert('تم النقر!')">زر رابط</button></textarea></div>
+          <div class="code-side">
+            <div class="preview-label">النتيجة</div>
+            <iframe class="preview-frame" id="ex7a-preview"></iframe>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="section-title">خاصية target — أين يفتح الرابط؟</h3>
+      <div class="tags-grid">
+        <div class="tag-item"><div class="tag-name">target="_self"</div><div class="tag-desc">يفتح في نفس الصفحة (الافتراضي)</div></div>
+        <div class="tag-item"><div class="tag-name">target="_blank"</div><div class="tag-desc">يفتح في تبويب جديد</div></div>
+        <div class="tag-item"><div class="tag-name">target="_top"</div><div class="tag-desc">يفتح في النافذة الكاملة</div></div>
+        <div class="tag-item"><div class="tag-name">target="_parent"</div><div class="tag-desc">يفتح في الصفحة الأب</div></div>
+      </div>
+
+      <h3 class="section-title">روابط لعناصر محددة في الصفحة</h3>
+      <p class="text-block">يمكنك ربط رابط بعنصر محدد في الصفحة عبر إعطائه <code>id</code> ثم استخدام <code>#id</code> في الرابط.</p>
+
+      <div class="editor-wrap">
+        <div class="editor-topbar">
+          <div class="editor-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+          <div class="editor-label">target و id anchors</div>
+          <button class="run-btn" onclick="runCode('ex7b')">▶ تشغيل</button>
+        </div>
+        <div class="editor-area">
+          <div><textarea class="code-input" id="ex7b-code" spellcheck="false"><!-- فتح في تبويب جديد -->
+<a href="https://google.com" target="_blank">افتح Google في تبويب جديد</a>
+<br/><br/>
+<!-- روابط القفز داخل الصفحة -->
+<a href="#section2">اذهب للقسم الثاني</a>
+<br/><br/>
+<h3 id="section2">القسم الثاني</h3>
+<p>وصلت للقسم الثاني!</p></textarea></div>
+          <div class="code-side">
+            <div class="preview-label">النتيجة</div>
+            <iframe class="preview-frame" id="ex7b-preview"></iframe>
+          </div>
+        </div>
+      </div>
+
+      <div class="exercise-card">
+        <div class="exercise-header"><span class="ex-badge">تمرين</span><span class="exercise-title">سؤال اختياري</span></div>
+        <div class="exercise-body">
+          <p class="exercise-desc">ما قيمة خاصية target التي تجعل الرابط يفتح في تبويب جديد؟</p>
+          <div class="mcq-options" id="mcq7">
+            <div class="mcq-opt" onclick="checkMCQ(this,'mcq7',false)">_self</div>
+            <div class="mcq-opt" onclick="checkMCQ(this,'mcq7',true)">_blank</div>
+            <div class="mcq-opt" onclick="checkMCQ(this,'mcq7',false)">_new</div>
+            <div class="mcq-opt" onclick="checkMCQ(this,'mcq7',false)">_top</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="exercise-card">
+        <div class="exercise-header"><span class="ex-badge">تمرين كتابي</span><span class="exercise-title">طبّق ما تعلمته</span></div>
+        <div class="exercise-body">
+          <p class="exercise-desc">اكتب صفحة بها رابط يفتح موقع Wikipedia في تبويب جديد، ورابط بريد إلكتروني لـ test@example.com</p>
+          <div class="exercise-hint" onclick="toggleHint('hint7')">💡 اضغط للتلميح
+            <div class="hint-content" id="hint7">استخدم target="_blank" للتبويب الجديد و href="mailto:..." للبريد</div>
+          </div>
+          <div class="editor-wrap" style="margin:0">
+            <div class="editor-topbar">
+              <div class="editor-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+              <div class="editor-label">تمرينك</div>
+              <button class="run-btn" onclick="runCode('ex7c')">▶ تشغيل</button>
+            </div>
+            <div class="editor-area">
+              <div><textarea class="code-input" id="ex7c-code" spellcheck="false"><!-- اكتب كودك هنا --></textarea></div>
+              <div class="code-side">
+                <div class="preview-label">النتيجة</div>
+                <iframe class="preview-frame" id="ex7c-preview"></iframe>
+              </div>
+            </div>
+          </div>
+          <button class="check-btn" onclick="checkExercise('ex7c', ['_blank', 'mailto'])">✔ تحقق من الإجابة</button>
+          <div class="result-msg" id="ex7c-result"></div>
+        </div>
+      </div>
+
+      <div style="text-align:center;margin-top:24px">
+        <button class="nav-btn primary" onclick="completeAndNext(7)">إكمال الدرس والمتابعة ❮</button>
+      </div>
+    </div>
+
+    <!-- ====== LESSON 8: الجداول ====== -->
+    <div class="lesson-page" id="lesson-8">
+      <div class="lesson-header">
+        <div class="lesson-tag">الدرس التاسع</div>
+        <h1>الجداول في HTML</h1>
+        <p>تعلم كيفية إنشاء الجداول وتنسيقها ودمج خاناتها</p>
+      </div>
+
+      <h3 class="section-title">وسوم الجدول الأساسية</h3>
+      <div class="tags-grid">
+        <div class="tag-item"><div class="tag-name">&lt;table&gt;</div><div class="tag-desc">الوسم الأساسي للجدول</div></div>
+        <div class="tag-item"><div class="tag-name">&lt;tr&gt;</div><div class="tag-desc">إضافة سطر (Table Row)</div></div>
+        <div class="tag-item"><div class="tag-name">&lt;th&gt;</div><div class="tag-desc">خانة عنوان — خط عريض وفي المنتصف</div></div>
+        <div class="tag-item"><div class="tag-name">&lt;td&gt;</div><div class="tag-desc">خانة بيانات عادية</div></div>
+        <div class="tag-item"><div class="tag-name">&lt;caption&gt;</div><div class="tag-desc">عنوان خاص للجدول</div></div>
+      </div>
+
+      <div class="info-card warning">
+        <p>⚠️ <strong>ملاحظة:</strong> المتصفح لا يظهر خطوط الجدول تلقائياً. استخدم خاصية <code>border="1"</code> أو CSS لإظهارها.</p>
+      </div>
+
+      <h3 class="section-title">جدول بسيط</h3>
+      <div class="editor-wrap">
+        <div class="editor-topbar">
+          <div class="editor-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+          <div class="editor-label">جدول أساسي</div>
+          <button class="run-btn" onclick="runCode('ex8a')">▶ تشغيل</button>
+        </div>
+        <div class="editor-area">
+          <div><textarea class="code-input" id="ex8a-code" spellcheck="false"><table border="1" width="100%">
+  <caption>قائمة الطلاب</caption>
+  <tr>
+    <th>الرقم</th>
+    <th>الاسم</th>
+    <th>الدرجة</th>
+  </tr>
+  <tr>
+    <td>1</td>
+    <td>أحمد محمد</td>
+    <td>A</td>
+  </tr>
+  <tr>
+    <td>2</td>
+    <td>فاطمة علي</td>
+    <td>B+</td>
+  </tr>
+  <tr>
+    <td>3</td>
+    <td>خالد يوسف</td>
+    <td>A+</td>
+  </tr>
+</table></textarea></div>
+          <div class="code-side">
+            <div class="preview-label">النتيجة</div>
+            <iframe class="preview-frame" id="ex8a-preview"></iframe>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="section-title">دمج الخانات</h3>
+      <p class="text-block"><code>colspan</code> يدمج الخانات أفقياً (على نفس السطر)، و<code>rowspan</code> يدمج الخانات عمودياً (أكثر من سطر).</p>
+
+      <div class="editor-wrap">
+        <div class="editor-topbar">
+          <div class="editor-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+          <div class="editor-label">دمج خانات</div>
+          <button class="run-btn" onclick="runCode('ex8b')">▶ تشغيل</button>
+        </div>
+        <div class="editor-area">
+          <div><textarea class="code-input" id="ex8b-code" spellcheck="false"><table border="1" width="100%">
+  <tr>
+    <!-- تمتد على عمودين أفقياً -->
+    <th colspan="2">البيانات الشخصية</th>
+    <th>النتيجة</th>
+  </tr>
+  <tr>
+    <td>أحمد</td>
+    <td>20 سنة</td>
+    <!-- تمتد على سطرين عمودياً -->
+    <td rowspan="2">ناجح</td>
+  </tr>
+  <tr>
+    <td>سارة</td>
+    <td>22 سنة</td>
+  </tr>
+</table></textarea></div>
+          <div class="code-side">
+            <div class="preview-label">النتيجة</div>
+            <iframe class="preview-frame" id="ex8b-preview"></iframe>
+          </div>
+        </div>
+      </div>
+
+      <div class="exercise-card">
+        <div class="exercise-header"><span class="ex-badge">تمرين</span><span class="exercise-title">سؤال اختياري</span></div>
+        <div class="exercise-body">
+          <p class="exercise-desc">ما الخاصية المستخدمة لدمج خانات على نفس السطر (أفقياً)؟</p>
+          <div class="mcq-options" id="mcq8">
+            <div class="mcq-opt" onclick="checkMCQ(this,'mcq8',false)">rowspan</div>
+            <div class="mcq-opt" onclick="checkMCQ(this,'mcq8',true)">colspan</div>
+            <div class="mcq-opt" onclick="checkMCQ(this,'mcq8',false)">merge</div>
+            <div class="mcq-opt" onclick="checkMCQ(this,'mcq8',false)">span</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="exercise-card">
+        <div class="exercise-header"><span class="ex-badge">تمرين كتابي</span><span class="exercise-title">أنشئ جدولك</span></div>
+        <div class="exercise-body">
+          <p class="exercise-desc">أنشئ جدولاً يعرض جدول المواد الدراسية الأسبوعي: 3 أعمدة (اليوم، المادة، الوقت) مع 3 صفوف بيانات على الأقل.</p>
+          <div class="exercise-hint" onclick="toggleHint('hint8')">💡 اضغط للتلميح
+            <div class="hint-content" id="hint8">ابدأ بـ &lt;table border="1"&gt; ثم السطر الأول عناوين بـ &lt;th&gt;</div>
+          </div>
+          <div class="editor-wrap" style="margin:0">
+            <div class="editor-topbar">
+              <div class="editor-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+              <div class="editor-label">تمرينك</div>
+              <button class="run-btn" onclick="runCode('ex8c')">▶ تشغيل</button>
+            </div>
+            <div class="editor-area">
+              <div><textarea class="code-input" id="ex8c-code" spellcheck="false"><!-- اكتب جدولك هنا --></textarea></div>
+              <div class="code-side">
+                <div class="preview-label">النتيجة</div>
+                <iframe class="preview-frame" id="ex8c-preview"></iframe>
+              </div>
+            </div>
+          </div>
+          <button class="check-btn" onclick="checkExercise('ex8c', ['<table', '<tr', '<td'])">✔ تحقق من الإجابة</button>
+          <div class="result-msg" id="ex8c-result"></div>
+        </div>
+      </div>
+
+      <div style="text-align:center;margin-top:24px">
+        <button class="nav-btn primary" onclick="completeAndNext(8)">إكمال الدرس والمتابعة ❮</button>
+      </div>
+    </div>
+
+    <!-- ====== LESSON 9: مراجعة شاملة ====== -->
+    <div class="lesson-page" id="lesson-9">
+      <div class="lesson-header">
+        <div class="lesson-tag">الدرس العاشر</div>
+        <h1>مراجعة شاملة 🏆</h1>
+        <p>اختبر معلوماتك بمشروع كامل يجمع كل ما تعلمته</p>
+      </div>
+
+      <h3 class="section-title">ملخص ما تعلمته</h3>
+      <div class="tags-grid">
+        <div class="tag-item"><div class="tag-name">البنية الأساسية</div><div class="tag-desc">DOCTYPE, html, head, body, title</div></div>
+        <div class="tag-item"><div class="tag-name">العناوين والفقرات</div><div class="tag-desc">h1-h6, p, br, hr, pre</div></div>
+        <div class="tag-item"><div class="tag-name">تنسيق النص</div><div class="tag-desc">b, i, u, s, mark, sup, sub, small</div></div>
+        <div class="tag-item"><div class="tag-name">الاقتباسات</div><div class="tag-desc">blockquote, q, abbr, address, cite</div></div>
+        <div class="tag-item"><div class="tag-name">تنسيق الكود</div><div class="tag-desc">kbd, samp, code, var</div></div>
+        <div class="tag-item"><div class="tag-name">الروابط</div><div class="tag-desc">a, href, target, mailto</div></div>
+        <div class="tag-item"><div class="tag-name">الجداول</div><div class="tag-desc">table, tr, th, td, colspan, rowspan</div></div>
+      </div>
+
+      <h3 class="section-title">🎯 مشروع نهائي — صفحة سيرة ذاتية</h3>
+      <p class="text-block">اكتب صفحة HTML كاملة تحتوي على: عنوان رئيسي باسمك، فقرة تعريفية، جدول مهاراتك، رابط بريدك الإلكتروني، واقتباس تحبه.</p>
+
+      <div class="editor-wrap">
+        <div class="editor-topbar">
+          <div class="editor-dots"><div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div></div>
+          <div class="editor-label">مشروعك النهائي</div>
+          <button class="run-btn" onclick="runCode('ex9')">▶ تشغيل</button>
+        </div>
+        <div class="editor-area">
+          <div><textarea class="code-input" id="ex9-code" spellcheck="false" style="height:300px"><!DOCTYPE html>
+<html>
+<head>
+  <title>سيرتي الذاتية</title>
+</head>
+<body>
+
+  <h1>اسمي: محمد أحمد</h1>
+  <p>أنا مطور ويب مبتدئ أتعلم <abbr title="HyperText Markup Language">HTML</abbr> مع دورة تفاعلية.</p>
+
+  <h2>مهاراتي</h2>
+  <table border="1" width="100%">
+    <tr>
+      <th>المهارة</th>
+      <th>المستوى</th>
+    </tr>
+    <tr>
+      <td>HTML</td>
+      <td><mark>مبتدئ ← محترف</mark></td>
+    </tr>
+    <tr>
+      <td>CSS</td>
+      <td>قريباً 🚀</td>
+    </tr>
+  </table>
+
+  <h2>اقتباسي المفضل</h2>
+  <blockquote>
+    "The best way to learn is by doing."
+  </blockquote>
+
+  <h2>تواصل معي</h2>
+  <address>
+    <a href="mailto:my@email.com">my@email.com</a>
+  </address>
+
+</body>
+</html></textarea></div>
+          <div class="code-side" style="height:300px">
+            <div class="preview-label">النتيجة</div>
+            <iframe class="preview-frame" id="ex9-preview" style="height:300px"></iframe>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="section-title">اختبار نهائي</h3>
+
+      <div class="exercise-card">
+        <div class="exercise-header"><span class="ex-badge">سؤال 1</span><span class="exercise-title">الاقتباسات</span></div>
+        <div class="exercise-body">
+          <p class="exercise-desc">ما الفرق بين &lt;blockquote&gt; و &lt;q&gt;؟</p>
+          <div class="mcq-options" id="mcqF1">
+            <div class="mcq-opt" onclick="checkMCQ(this,'mcqF1',false)">لا فرق بينهما، يمكن استخدام أي منهما</div>
+            <div class="mcq-opt" onclick="checkMCQ(this,'mcqF1',true)">&lt;blockquote&gt; لاقتباسات طويلة في بلوك منفصل، و&lt;q&gt; لاقتباسات قصيرة داخل الجملة</div>
+            <div class="mcq-opt" onclick="checkMCQ(this,'mcqF1',false)">&lt;q&gt; للاقتباسات الطويلة فقط</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="exercise-card">
+        <div class="exercise-header"><span class="ex-badge">سؤال 2</span><span class="exercise-title">الجداول</span></div>
+        <div class="exercise-body">
+          <p class="exercise-desc">ما الوسم الذي يضيف سطراً جديداً في الجدول؟</p>
+          <div class="mcq-options" id="mcqF2">
+            <div class="mcq-opt" onclick="checkMCQ(this,'mcqF2',false)">&lt;td&gt;</div>
+            <div class="mcq-opt" onclick="checkMCQ(this,'mcqF2',true)">&lt;tr&gt;</div>
+            <div class="mcq-opt" onclick="checkMCQ(this,'mcqF2',false)">&lt;th&gt;</div>
+            <div class="mcq-opt" onclick="checkMCQ(this,'mcqF2',false)">&lt;table&gt;</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="exercise-card">
+        <div class="exercise-header"><span class="ex-badge">سؤال 3</span><span class="exercise-title">الروابط</span></div>
+        <div class="exercise-body">
+          <p class="exercise-desc">كيف تجعل رابط يفتح تطبيق البريد الإلكتروني مباشرة؟</p>
+          <div class="mcq-options" id="mcqF3">
+            <div class="mcq-opt" onclick="checkMCQ(this,'mcqF3',false)">href="email:user@example.com"</div>
+            <div class="mcq-opt" onclick="checkMCQ(this,'mcqF3',true)">href="mailto:user@example.com"</div>
+            <div class="mcq-opt" onclick="checkMCQ(this,'mcqF3',false)">href="mail:user@example.com"</div>
+            <div class="mcq-opt" onclick="checkMCQ(this,'mcqF3',false)">href="#user@example.com"</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="exercise-card">
+        <div class="exercise-header"><span class="ex-badge">سؤال 4</span><span class="exercise-title">تنسيق الكود</span></div>
+        <div class="exercise-body">
+          <p class="exercise-desc">أي وسم تستخدم لعرض مفاتيح لوحة المفاتيح مثل Ctrl+C؟</p>
+          <div class="mcq-options" id="mcqF4">
+            <div class="mcq-opt" onclick="checkMCQ(this,'mcqF4',false)">&lt;code&gt;</div>
+            <div class="mcq-opt" onclick="checkMCQ(this,'mcqF4',false)">&lt;samp&gt;</div>
+            <div class="mcq-opt" onclick="checkMCQ(this,'mcqF4',true)">&lt;kbd&gt;</div>
+            <div class="mcq-opt" onclick="checkMCQ(this,'mcqF4',false)">&lt;var&gt;</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align:center;margin-top:32px;padding:24px;background:var(--card);border-radius:16px;border:1px solid var(--border)">
+        <div style="font-size:3rem;margin-bottom:12px">🎉</div>
+        <h2 style="color:var(--accent2);margin-bottom:8px">تهانينا! أكملت الدورة</h2>
+        <p style="color:var(--muted);font-size:0.9rem">لقد تعلمت أساسيات HTML وأصبحت جاهزاً للانتقال إلى CSS</p>
+        <button class="nav-btn primary" style="margin-top:16px;font-size:1rem;padding:12px 28px" onclick="completeAndNext(9)">🏆 إنهاء الدورة</button>
+      </div>
+    </div>
+
+  </div><!-- end content -->
+</main>
+
+<button class="menu-toggle" id="menuToggle" onclick="toggleSidebar()">☰</button>
+
+<script>
+  const TOTAL = 10;
+  let current = 0;
+  let completed = new Set();
+
+  const titles = [
+    'ما هي HTML؟', 'أساسيات اللغة', 'الفقرات', 'العناوين', 'تنسيق النصوص',
+    'الاقتباسات', 'تنسيق الكود', 'الروابط', 'الجداول', 'مراجعة شاملة'
+  ];
+
+  function showLesson(idx) {
+    document.querySelectorAll('.lesson-page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.lesson-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('lesson-' + idx).classList.add('active');
+    document.getElementById('btn-' + idx).classList.add('active');
+    document.getElementById('currentLessonTitle').textContent = titles[idx];
+    current = idx;
+    window.scrollTo(0, 0);
+  }
+
+  function nextLesson() {
+    if (current < TOTAL - 1) showLesson(current + 1);
+  }
+
+  function prevLesson() {
+    if (current > 0) showLesson(current - 1);
+  }
+
+  function completeAndNext(idx) {
+    completed.add(idx);
+    const btn = document.getElementById('btn-' + idx);
+    btn.classList.add('completed');
+    btn.querySelector('.lesson-num').textContent = '✓';
+    updateProgress();
+    if (idx < TOTAL - 1) showLesson(idx + 1);
+  }
+
+  function updateProgress() {
+    const pct = Math.round((completed.size / TOTAL) * 100);
+    document.getElementById('progressFill').style.width = pct + '%';
+    document.getElementById('progressText').textContent = completed.size + ' من ' + TOTAL + ' دروس مكتملة';
+  }
+
+  function runCode(id) {
+    const code = document.getElementById(id + '-code').value;
+    const frame = document.getElementById(id + '-preview');
+    const doc = frame.contentDocument || frame.contentWindow.document;
+    doc.open(); doc.write(code); doc.close();
+  }
+
+  function checkMCQ(el, groupId, isCorrect) {
+    const opts = document.getElementById(groupId).querySelectorAll('.mcq-opt');
+    opts.forEach(o => { o.onclick = null; });
+    if (isCorrect) {
+      el.classList.add('correct');
+    } else {
+      el.classList.add('wrong');
+      opts.forEach(o => {
+        if (o.getAttribute('onclick') === null && o !== el) {
+          // find correct
+        }
+      });
+    }
+  }
+
+  function toggleHint(id) {
+    const h = document.getElementById(id);
+    h.classList.toggle('show');
+  }
+
+  function checkExercise(id, required) {
+    const code = document.getElementById(id + '-code').value.toLowerCase();
+    const resultEl = document.getElementById(id + '-result');
+    const allFound = required.every(r => code.includes(r.toLowerCase()));
+    if (allFound && code.trim().length > 20) {
+      resultEl.className = 'result-msg success';
+      resultEl.textContent = '✅ ممتاز! الإجابة صحيحة. استمر هكذا!';
+    } else {
+      resultEl.className = 'result-msg error';
+      resultEl.textContent = '❌ تحقق من كودك. تأكد من استخدام: ' + required.join(', ');
+    }
+  }
+
+  function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('open');
+  }
+
+  // Auto-run first editor
+  window.addEventListener('load', () => {
+    setTimeout(() => { runCode('ex0'); }, 300);
+  });
+</script>
+</body>
+</html>
